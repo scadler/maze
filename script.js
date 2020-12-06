@@ -5,8 +5,8 @@ var algorithm = {
     x: 0,
     y: 0,
     complete: false,
+    steps: 0
 }
-
 function drawRect(x,y,w,h,color){
     ctx.fillStyle = color
     ctx.fillRect(x,y,w,h)
@@ -41,15 +41,17 @@ function generateMaze(){
     }
     var v = Math.floor(Math.random()*empty.length)
     console.log(v)
-    
-    algorithm.x += dir[v][0]
-    algorithm.y += dir[v][1]
+    algorithm.x = (algorithm.x + dir[v][0] < 480) ? algorithm.x + dir[v][0] : 0
+    algorithm.y = (algorithm.y + dir[v][1] < 480) ? algorithm.y + dir[v][1] : 0
+    // algorithm.x += dir[v][0]
+    // algorithm.y += dir[v][1]
     if(!ctx.getImageData(algorithm.x, algorithm.y, 1, 1).data.includes(1)){
-    drawRect(algorithm.x + vel[v][0],algorithm.y + vel[v][1], vel[v][2],vel[v][3],"#0001fe")
+        drawRect(algorithm.x + vel[v][0],algorithm.y + vel[v][1], vel[v][2],vel[v][3],"#0001fe")
+        algorithm.steps += 1;
     }
 }
-
-setInterval(() => { if(algorithm.complete === false){
+drawRect(0,500,480,1,"#fg00fg")
+setInterval(() => { if(algorithm.steps  <= 375){
      generateMaze() 
     }
 },)
