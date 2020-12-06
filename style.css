@@ -1,0 +1,9 @@
+#maze{
+    border: 1px solid #000;
+    height: 500px;
+    width: 500px;
+    image-rendering: pixelated; 
+}
+html{
+    background-color: #fefefe;
+}
