@@ -1,7 +1,7 @@
 #maze{
-    border: 1px solid #000;
-    height: 500px;
-    width: 500px;
+    border: 25px solid #000;
+    height: 657px;
+    width: 657px;
     image-rendering: pixelated; 
 }
 html{

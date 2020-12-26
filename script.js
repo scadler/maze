@@ -1,69 +1,110 @@
 const canvas = document.getElementById("maze");
 const context = canvas.getContext("2d");
 var ctx = canvas.getContext('2d');
-var algorithm = {
-    x: 0,
-    y: 0,
-    complete: false,
-    steps: 0,
-    newSpot: false,
-}
-var dir = [ [50,0], [0,50], [-50,0], [0,-50], ]
-var vel = [ [-1,0,1,49], [0,-1,49,1], [49,0,1,49], [0,49,49,1], ]
+// var state = {
+//     generated: false,
+// }
+var x, y, current;
+var cols = []
+var row = []
+var grid = []
+var cell
+var neighbors = []
 function drawRect(x,y,w,h,color){
     ctx.fillStyle = color
     ctx.fillRect(x,y,w,h)
 }
-function createWalls(){
-    drawRect(0,0,canvas.width,canvas.height,"#FFFFFF")
-    var i = 0
-    while(i < Math.round(canvas.height/25)){
-        i++
-        drawRect((i*50)-1, 0, 1,canvas.height,"#000")
-        drawRect(0, (i*50)-1, canvas.width,1,"#000")
+function drawLine(x,y,w,h){
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#000000"
+    ctx.beginPath()
+    ctx.moveTo(x,y)
+    ctx.lineTo(w,h)
+    ctx.stroke()
+    
+}
+drawRect(0, 0, 20,20,"#0001fe")
+function Cells(x,y){
+    this.x = x;
+    this.y = y;
+    this.visited = false
+    this.walls = [true, true, true, true]
+    var c = x*20
+    var r = y*20
+    if(this.walls[0]){
+        drawLine(c   ,r   ,c+20,r   )
+    }
+    if(this.walls[1]){
+        drawLine(c+20,r   ,c+20,r+20)
+    }
+    if(this.walls[2]){
+        drawLine(c+20,r+20,c   ,r+20)
+    }
+    if(this.walls[3]){
+        drawLine(c   ,r+20,c   ,r   )
+    }
+    // console.log(this)
+}
+function index(i,j){
+    if( i<0 || j<0 || i>19 || j>19){
+        return -1
+    }
+    else{
+    return (i *20) + j
     }
 }
-createWalls()
-function newPos(){
-    var nx = Math.floor(Math.random()*11)*50
-    var ny = Math.floor(Math.random()*11)*50
-    console.log(nx+" nx"+" "+ny+" ny")
-    algorithm.x = nx
-    algorithm.y = ny
-    console.log("new pos")
-    algorithm.newSpot = true
+function checkBorders(c,r){
+    console.log(grid[c * 20 + r])
+    var top = grid[index(c-1,r)]
+    var right = grid[index(c,r+1)]
+    var left = grid[index(c,r-1)]
+    var bottom = grid[index(c+1,r)]
+    if(top && !top.visited){
+        neighbors.push(top)
+    }
+    if(right && !right.visited){
+        neighbors.push(right)
+    }
+    if(left && !left.visited){
+        neighbors.push(left)
+    }
+    if(bottom && !bottom.visited){
+        neighbors.push(bottom)
+    }
+    console.log(neighbors)
+    if(neighbors.length > 0){
+        var r = Math.floor(Math.random(0, neighbors.length))
+        console.log(neighbors[r].x)
+        checkBorders(neighbors[r].x,neighbors[r].y)
+        drawRect(neighbors[r].x,neighbors[r].y,1,1,"#ffffff")
+        return neighbors[r]
+       
+    }else{
+        return undefined
+    }
 }
-function generateMaze(){
-    const x = algorithm.x
-    const y = algorithm.y
-    drawRect(x, y, 49,49,"#0001fe")
-    var i = 0
-    var empty = []
-    while(i<4){
-        if(ctx.getImageData(x + dir[i][0], y + dir[i][1], 1, 1).data.includes(255)){
-            empty.push(dir[i])
+function createGrid(){
+    for (var x=0; x<20; x++){
+        for(var y=0; y<20;y++){
+            var cell = new Cells(x,y)
+            drawRect(x,y,1,1,"#ffffff")
+            grid.push(cell)
         }
-        i++
-    }
-    var v = Math.floor(Math.random()*empty.length)
-    if(algorithm.x + dir[v][0] > 540){
-        newPos()
-    }
-    else if(algorithm.x + dir[v][0] < 540){
-        algorithm.x = algorithm.x + dir[v][0]
-    }
-    if(algorithm.y + dir[v][1] > 540){
-        newPos()
-    }
-    else if(algorithm.y + dir[v][1] < 540){
-        algorithm.y = algorithm.y + dir[v][1]
-    }
-    if(!ctx.getImageData(algorithm.x, algorithm.y, 1, 1).data.includes(1)){
-        drawRect(algorithm.x + vel[v][0],algorithm.y + vel[v][1], vel[v][2],vel[v][3],"#0001fe")
-        algorithm.steps += 1;
     }
 }
-setInterval(() => { if(algorithm.steps  <= 3900){
-     generateMaze() 
+current = grid[0]
+function generate(){
+    current.visited = true
+    var next = current.checkBorders
+    if(next){
+        next.visited = true
+        current = next
     }
-},)
+    
+}
+createGrid()
+checkBorders(1,1)
+// setInterval(() => { if(algorithm.steps  <= 3900){
+//      generateMaze() 
+//     }
+// },)
